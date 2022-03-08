@@ -24,18 +24,27 @@ const init = function () {
         = current0El.textContent
         = 0;
 }
+let currentScore = 0;
+let activePlayer = 0;
+
+const switchPlayer = function () {
+    currentScore = 0;
+    document.getElementById(`current--${activePlayer}`).textContent = currentScore;
+    activePlayer = (activePlayer === 1) ? 0 : 1;
+    player0El.classList.toggle('player--active');
+    player1El.classList.toggle('player--active');
+}
 
 init();
-let currentScore = 0;
 btnRoll.addEventListener('click', function() {
     let roll = getRoll();
     diceEl.src = `dice-${roll}.png`;
     diceEl.classList.remove('hidden');
 
     if (roll === 1) {
-        // Switch player.
+        switchPlayer();
         return;
     }
     currentScore += roll;
-    current0El.textContent = currentScore;
+    document.getElementById(`current--${activePlayer}`).textContent = currentScore;
 });
