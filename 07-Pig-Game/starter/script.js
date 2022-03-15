@@ -13,29 +13,25 @@ const btnRoll = document.querySelector('.btn--roll');
 const btnHold = document.querySelector('.btn--hold');
 
 const WIN_POINTS = 20;
-let scores = [0, 0];
-let currentScore = 0;
-let activePlayer = 0;
-let gameOn = true;
-
+let [scores, currentScore, activePlayer, gameOn] = [[0,0], 0, 0, true];
 
 const getRoll = function () {
     return Number(Math.trunc(Math.random() * 6)) + 1;
 }
 
 const init = function () {
-    scores = [0, 0];
-    currentScore = 0;
-    activePlayer = 0;
-    gameOn = true;
+    [scores, currentScore, activePlayer, gameOn] = [[0,0], 0, 0, true];
+    [
+        score0El.textContent, 
+        score1El.textContent,
+        current0El.textContent,
+        current0El.textContent
+    ] = [0, 0, 0, 0];
     diceEl.classList.add('hidden');
-    score0El.textContent
-        = score1El.textContent
-        = current0El.textContent
-        = current0El.textContent
-        = 0;
     player0El.classList.add('player--active');
     player1El.classList.remove('player--active');
+    player0El.classList.remove('player--winner');
+    player1El.classList.remove('player--winner');
 }
 
 const switchPlayer = function () {
@@ -46,7 +42,10 @@ const switchPlayer = function () {
     player1El.classList.toggle('player--active');
 }
 
+// Game start.
 init();
+
+// Rolling a dice.
 btnRoll.addEventListener('click', function () {
     if (!gameOn) {
         return;
@@ -64,10 +63,12 @@ btnRoll.addEventListener('click', function () {
     document.getElementById(`current--${activePlayer}`).textContent = currentScore;
 });
 
+// Holding current score.
 btnHold.addEventListener('click', function () {
     if (!gameOn) {
         return;
     }
+    
     scores[activePlayer] += currentScore;
     document.getElementById(`score--${activePlayer}`).textContent = scores[activePlayer];
 
@@ -75,14 +76,12 @@ btnHold.addEventListener('click', function () {
         switchPlayer();
         return;
     }
-
+    
     gameOn = false;
     diceEl.classList.add('hidden');
     document.querySelector(`.player--${activePlayer}`).classList.add('player--winner');
     document.querySelector(`.player--${activePlayer}`).classList.remove('player--active');
 });
 
-btnNew.addEventListener('click', function () {
-    document.querySelector(`.player--${activePlayer}`).classList.remove('player--winner');
-    init();
-});
+// Reset the game.
+btnNew.addEventListener('click', init);
