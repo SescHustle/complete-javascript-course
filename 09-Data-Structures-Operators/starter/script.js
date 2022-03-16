@@ -29,6 +29,7 @@ const restaurant = {
 };
 
 // Coding Challenge #1
+console.log('---- CODING CHALLENGE #1 ----');
 const game = {
   team1: 'Bayern Munich',
   team2: 'Borrussia Dortmund',
@@ -94,3 +95,29 @@ printGoals(...game.scored);
 // 7.
 team1 < team2 && console.log('Team 1 is more likely to win');
 team1 > team2 && console.log('Team 2 is more likely to win');
+
+// Coding challenge #2 (uses the same object as #1)
+console.log('---- CODING CHALLENGE #2 ----');
+// 1.
+for (const [goal, player] of game.scored.entries()){
+  console.log(`Goal ${goal + 1} scored by ${player}`);
+}
+// 2.
+let average = 0;
+const odds = Object.values(game.odds);
+for (const odd of odds){
+  average += odd;
+}
+average /= odds.length;
+console.log(average);
+// 3.
+for (const [team, odd] of Object.entries(game.odds)) {
+  const teamStr = team === 'x' ? 'draw' : `victory ${game[team]}`;
+  console.log(`Odd of ${teamStr} is ${odd}`);
+}
+// 4.
+const scores = {};
+for (const player of game.scored) {
+  scores[player] ? scores[player]++ : (scores[player] = 1);
+}
+console.log(scores);
