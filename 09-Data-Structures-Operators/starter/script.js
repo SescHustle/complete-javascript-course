@@ -151,3 +151,26 @@ for (const [min, event] of gameEvents) {
   const half = min <=45 ? 'FIRST' : 'SECOND';
   console.log(`${half} HALF: ${min}\' - ${event}`);
 }
+
+// Coding Challenge #4
+console.log('---- CODING CHALLENGE #4 ----');
+document.body.append(document.createElement('textarea'));
+document.body.append(document.createElement('button'));
+
+const toCamelCase = function (input) {
+  const words = input.toLowerCase().trim().split('_');
+  let capitalizedWords = [];
+  for (const word of words) {
+    capitalizedWords.push(word.replace(word[0], word[0].toUpperCase()));
+  }
+  capitalizedWords[0] = capitalizedWords[0].toLowerCase();
+  return capitalizedWords.join('');
+}
+
+document.querySelector('button').addEventListener('click', function () {
+  const text = document.querySelector('textarea').value;
+  const rows = text.split('\n');
+  for (const row of rows){
+    console.log(toCamelCase(row));
+  }
+});
