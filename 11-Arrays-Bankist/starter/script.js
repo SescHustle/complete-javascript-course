@@ -1,6 +1,43 @@
 'use strict';
-
 /////////////////////////////////////////////////
+// Coding Challenges
+
+// Coding Challenge #1
+console.log('---- CODING CHALLENGE #1 ----');
+const checkDogs = function(dogs1, dogs2) {
+  // 1.
+  dogs1.splice(0, 1);
+  dogs1.splice(-2);
+  // 2.
+  const allDogs = dogs1.concat(dogs2);
+  // 3.
+  allDogs.forEach((dogAge, i) => {
+    dogAge >= 3 ?
+    console.log(`Dog number ${i + 1} is an adult, and is ${dogAge} years old`) :
+    console.log(`Dog number ${i + 1} is still a puppy 🐶`);
+  });
+}
+// 4.
+console.log('---- TEST DATA 1 ----');
+checkDogs([3, 5, 2, 12, 7], [4, 1, 15, 8, 3]);
+console.log('---- TEST DATA 2 ----');
+checkDogs([9, 16, 6, 8, 3], [10, 5, 6, 1, 4]);
+
+// Coding Challenge #2 and #3
+console.log('\n---- CODING CHALLENGE #2 AND #3 ----');
+function calcAverageHumanAge(ages) {
+  const average = ages
+    .map(age => (age <= 2 ? 2 * age : 16 + age * 4))                            // 1.
+    .filter(age => age >= 18)                                                   // 2.
+    .reduce((accumulator, age, _ , arr) => accumulator + age / arr.length, 0);  // 3.
+  console.log(average);
+}
+// 4.
+console.log('---- TEST DATA 1 ----');
+calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]);
+console.log('---- TEST DATA 2 ----');
+calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]);
+
 /////////////////////////////////////////////////
 // BANKIST APP
 
@@ -62,7 +99,6 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 /////////////////////////////////////////////////
-/////////////////////////////////////////////////
 // LECTURES
 
 const currencies = new Map([
@@ -74,39 +110,14 @@ const currencies = new Map([
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
-
-// Coding Challenge #1
-console.log('---- CODING CHALLENGE #1 ----');
-const checkDogs = function(dogs1, dogs2) {
-  // 1.
-  dogs1.splice(0, 1);
-  dogs1.splice(-2);
-  // 2.
-  const allDogs = dogs1.concat(dogs2);
-  // 3.
-  allDogs.forEach((dogAge, i) => {
-    dogAge >= 3 ?
-    console.log(`Dog number ${i + 1} is an adult, and is ${dogAge} years old`) :
-    console.log(`Dog number ${i + 1} is still a puppy 🐶`);
-  });
+let currentAccount = {};
+function init() {
+  currentAccount = {};
+  containerApp.style.opacity = 0;
+} 
+function logIn(acc) {
+  currentAccount = acc;
+  containerApp.style.opacity = 100;
 }
-// 4.
-console.log('---- TEST DATA 1 ----');
-checkDogs([3, 5, 2, 12, 7], [4, 1, 15, 8, 3]);
-console.log('---- TEST DATA 2 ----');
-checkDogs([9, 16, 6, 8, 3], [10, 5, 6, 1, 4]);
-
-// Coding Challenge #2 and #3
-console.log('\n---- CODING CHALLENGE #2 AND #3 ----');
-function calcAverageHumanAge(ages) {
-  const average = ages
-    .map(age => (age <= 2 ? 2 * age : 16 + age * 4))                            // 1.
-    .filter(age => age >= 18)                                                   // 2.
-    .reduce((accumulator, age, _ , arr) => accumulator + age / arr.length, 0);  // 3.
-  console.log(average);
-}
-// 4.
-console.log('---- TEST DATA 1 ----');
-calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]);
-console.log('---- TEST DATA 2 ----');
-calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]);
+init();
+logIn(account1);
