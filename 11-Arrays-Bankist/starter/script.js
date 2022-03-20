@@ -157,7 +157,8 @@ function calcDisplaySummary(account) {
     .reduce((accumulator, interest) => accumulator + interest, 0);
   labelSumInterest.textContent = `${interest}€`;
 }
-function displayMovements(movements) {
+function displayMovements(movements, sort = false) {
+  movements = sort ? movements.slice().sort((a,b) => a-b) : movements;
   containerMovements.innerHTML = '';
   movements.forEach((mov, i) => {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
@@ -169,9 +170,6 @@ function displayMovements(movements) {
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html);
   })
-}
-function displayMovement(movement) {
-
 }
 function updateUI(account) {
   displayMovements(account.movements);
@@ -206,9 +204,6 @@ function transfer(receiver, amount) {
   receiver.movements.push(amount);
   updateUI(currentAccount);
 }
-function closeAccount() {
-
-}
 function unlogin(){
   currentAccount = {};
   containerApp.style.opacity = 0;
@@ -241,3 +236,10 @@ btnLoan.addEventListener('click', event => {
   amount > 0 && requestLoan(amount);
   inputLoanAmount.value = '' && inputLoanAmount.blur();
 })
+
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+});
