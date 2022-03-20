@@ -32,6 +32,7 @@ const init = function () {
     player1El.classList.remove('player--active');
     player0El.classList.remove('player--winner');
     player1El.classList.remove('player--winner');
+    
 }
 
 const switchPlayer = function () {
@@ -79,6 +80,7 @@ btnHold.addEventListener('click', function () {
     
     gameOn = false;
     diceEl.classList.add('hidden');
+    document.getElementById(`current--${activePlayer}`).textContent = 0;
     document.querySelector(`.player--${activePlayer}`).classList.add('player--winner');
     document.querySelector(`.player--${activePlayer}`).classList.remove('player--active');
 });
