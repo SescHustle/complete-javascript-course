@@ -129,10 +129,54 @@ function logIn(account) {
   containerApp.style.opacity = 100;
   inputLoginUsername.value = inputLoginPin.value = '';
   inputLoginPin.blur();
+  updateUI(account);
 }
 function findAccount(username, pin) {
   const account = accounts.find(account => account.username === username);
   (account?.pin === pin) ?  logIn(account) : labelWelcome.textContent = 'Wrong username or password!';
+}
+function calcDisplayBalance(account) {
+  account.balance = account.movements.reduce((accumulator, mov) => accumulator + mov, 0);
+  labelBalance.textContent = `${account.balance}€`;
+}
+function calcDisplaySummary(account) {
+  const income = account.movements
+    .filter(mov => mov > 0)
+    .reduce((accumulator, mov) => accumulator + mov, 0);
+  labelSumIn.textContent = `${income}€`;
+
+  const outcome = account.movements
+    .filter(mov => mov < 0)
+    .reduce((accumulator, mov) => accumulator + Math.abs(mov), 0);
+  labelSumOut.textContent = `${outcome}€`;
+
+  const interest = account.movements
+    .filter(mov => mov > 0)
+    .map(deposit => deposit * account.interestRate / 100)
+    .filter(interest => interest >= 1)
+    .reduce((accumulator, interest) => accumulator + interest, 0);
+  labelSumInterest.textContent = `${interest}€`;
+}
+function displayMovements(movements) {
+  containerMovements.innerHTML = '';
+  movements.forEach((mov, i) => {
+    const type = mov > 0 ? 'deposit' : 'withdrawal';
+    const html = `
+      <div class="movements__row">
+        <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+        <div class="movements__value">${mov}€</div>
+      </div>
+    `;
+    containerMovements.insertAdjacentHTML('afterbegin', html);
+  })
+}
+function displayMovement(movement) {
+
+}
+function updateUI(account) {
+  displayMovements(account.movements);
+  calcDisplayBalance(account);
+  calcDisplaySummary(account);
 }
 init();
 btnLogin.addEventListener('click', event => {
@@ -140,4 +184,4 @@ btnLogin.addEventListener('click', event => {
   const username = inputLoginUsername.value.trim().toLowerCase();
   const pin = Number(inputLoginPin.value);
   findAccount(username, pin);
-})
+});
