@@ -114,10 +114,30 @@ let currentAccount = {};
 function init() {
   currentAccount = {};
   containerApp.style.opacity = 0;
-} 
-function logIn(acc) {
-  currentAccount = acc;
+  accounts.forEach(account => account.username = createUsername(account));
+}
+function createUsername(account) {
+  return account.owner
+    .trim()
+    .toLowerCase()
+    .split(' ')
+    .map(name => name[0])
+    .join('');
+}
+function logIn(account) {
+  currentAccount = account;
   containerApp.style.opacity = 100;
+  inputLoginUsername.value = inputLoginPin.value = '';
+  inputLoginPin.blur();
+}
+function findAccount(username, pin) {
+  const account = accounts.find(account => account.username === username);
+  (account?.pin === pin) ?  logIn(account) : labelWelcome.textContent = 'Wrong username or password!';
 }
 init();
-logIn(account1);
+btnLogin.addEventListener('click', event => {
+  event.preventDefault();
+  const username = inputLoginUsername.value.trim().toLowerCase();
+  const pin = Number(inputLoginPin.value);
+  findAccount(username, pin);
+})
