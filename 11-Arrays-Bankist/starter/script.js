@@ -206,3 +206,24 @@ function transfer(receiver, amount) {
   receiver.movements.push(amount);
   updateUI(currentAccount);
 }
+function closeAccount() {
+
+}
+function unlogin(){
+  currentAccount = {};
+  containerApp.style.opacity = 0;
+}
+btnClose.addEventListener('click', event => {
+  event.preventDefault();
+  const username = inputCloseUsername.value;
+  const pin = Number(inputClosePin.value);
+  
+  inputCloseUsername.value = inputClosePin.value = '';
+  inputClosePin.blur();
+  
+  if (currentAccount.username === username && currentAccount.pin === pin) {
+    const index = accounts.findIndex(acc => acc.username === username);
+    unlogin();
+    accounts.splice(index, 1);
+  }
+})
