@@ -227,3 +227,17 @@ btnClose.addEventListener('click', event => {
     accounts.splice(index, 1);
   }
 })
+
+function requestLoan(amount) {
+  if (currentAccount.movements.some(mov => mov >= amount)) {
+    currentAccount.movements.push(amount);
+  }
+  updateUI(currentAccount);
+}
+
+btnLoan.addEventListener('click', event => {
+  event.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+  amount > 0 && requestLoan(amount);
+  inputLoanAmount.value = '' && inputLoanAmount.blur();
+})
