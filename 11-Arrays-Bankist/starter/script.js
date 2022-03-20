@@ -185,3 +185,24 @@ btnLogin.addEventListener('click', event => {
   const pin = Number(inputLoginPin.value);
   findAccount(username, pin);
 });
+btnTransfer.addEventListener('click', function(event) {
+  event.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiver = accounts.find(acc => acc.username === inputTransferTo.value);
+  
+  // Transfer validation first.
+  amount > 0 &&
+  currentAccount.balance >= amount && 
+  receiver && 
+  receiver.username !== currentAccount.username &&
+  transfer(receiver, amount);
+  
+  // Clear fields.
+  inputTransferAmount.value = inputTransferTo.value = '';
+  inputTransferAmount.blur();
+});
+function transfer(receiver, amount) {
+  currentAccount.movements.push(-amount);
+  receiver.movements.push(amount);
+  updateUI(currentAccount);
+}
