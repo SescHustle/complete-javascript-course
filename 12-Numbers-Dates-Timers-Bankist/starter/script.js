@@ -84,6 +84,8 @@ const inputClosePin = document.querySelector('.form__input--pin');
  * Initializes the app.
  */
 let currentAccount = {};
+let timer;
+const LOGOUT_TIME = 10;
 function init() {
   currentAccount = {};
   containerApp.style.opacity = 0;
@@ -119,6 +121,10 @@ function logIn(account) {
   inputLoginPin.blur();
   labelWelcome.textContent = `Welcome back, ${account.owner.split(' ')[0]}`;
   updateUI(account);
+  
+  // Reset logout timer.
+  if (timer) clearInterval(timer);
+  timer = startLogOutTimer();
 }
 
 /**
@@ -126,9 +132,39 @@ function logIn(account) {
  */
 function unlogin(){
   currentAccount = {};
+  clearInterval(timer);
   labelWelcome.textContent = "Log in to get started";
   containerApp.style.opacity = 0;
+  labelTimer.textContent = "00:00";
 }
+
+/**
+ * Starts logout timer
+ */
+function startLogOutTimer(){
+  let time = LOGOUT_TIME;
+  
+  function timerTick() {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+
+    // In each call, print the remaining time to UI
+    labelTimer.textContent = `${min}:${sec}`;
+
+    // When 0 seconds, stop timer and log out user
+    if (time === 0) {
+      unlogin();
+    }
+    
+    time--;
+  }
+
+  timerTick();
+  let timer = setInterval(timerTick, 1000);
+  return timer;
+}
+
+
 
 /**
  * Finds account with provided credentials.
