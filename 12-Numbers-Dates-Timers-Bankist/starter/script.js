@@ -161,26 +161,30 @@ function updateUI(account) {
 
 function calcDisplayBalance(account) {
   account.balance = account.movements.reduce((accumulator, mov) => accumulator + mov, 0);
-  labelBalance.textContent = `${account.balance}€`;
+  const formattedBalance = formatCur(account.balance, account.currency, account.locale);
+  labelBalance.textContent = `${formattedBalance}`;
 }
 
 function calcDisplaySummary(account) {
-  const income = account.movements
+  let income = account.movements
     .filter(mov => mov > 0)
     .reduce((accumulator, mov) => accumulator + mov, 0);
-  labelSumIn.textContent = `${income}€`;
+  income = formatCur(income, account.currency, account.locale);
+  labelSumIn.textContent = `${income}`;
 
-  const outcome = account.movements
+  let outcome = account.movements
     .filter(mov => mov < 0)
     .reduce((accumulator, mov) => accumulator + Math.abs(mov), 0);
-  labelSumOut.textContent = `${outcome}€`;
+  outcome = formatCur(outcome, account.currency, account.locale);
+  labelSumOut.textContent = `${outcome}`;
 
-  const interest = account.movements
+  let interest = account.movements
     .filter(mov => mov > 0)
     .map(deposit => deposit * account.interestRate / 100)
     .filter(interest => interest >= 1)
     .reduce((accumulator, interest) => accumulator + interest, 0);
-  labelSumInterest.textContent = `${interest}€`;
+  interest = formatCur(interest, account.currency, account.locale);
+  labelSumInterest.textContent = `${interest}`;
 }
 
 function displayMovements(acc, sort = false) {
@@ -189,11 +193,12 @@ function displayMovements(acc, sort = false) {
   movements.forEach((mov, i) => {
     const movDate = formatDate(new Date(acc.movementsDates[i]), acc.locale);
     const type = mov > 0 ? 'deposit' : 'withdrawal';
+    const formattedMov = formatCur(mov, acc.currency, acc.locale);
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
         <div class="movements__date">${movDate}</div>
-        <div class="movements__value">${mov}€</div>
+        <div class="movements__value">${formattedMov}</div>
       </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -210,6 +215,13 @@ function formatDate(date, locale) {
   if (daysPassed <= 7) return `${daysPassed} days ago`;
 
   return new Intl.DateTimeFormat(locale).format(date);
+}
+
+function formatCur(value, currency, locale = 'en-US') {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currency
+    }).format(value);
 }
 
 // Bankig functions
