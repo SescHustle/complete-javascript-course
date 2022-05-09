@@ -61,11 +61,15 @@ class App {
     #map;
     #workouts = [];
     #mapEvent;
+    #defaultZoom = 15;
 
     constructor() {
         this._getPosition();
-        form.addEventListener('submit', this._newWorkout.bind(this));
+        this._getLocalStorage();
         inputType.addEventListener('change', this._toggleElevationField);
+        containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+        form.addEventListener('submit', this._newWorkout.bind(this));
+        //TODO: fix event handling (evetns can not work together) 
     };
 
     _getPosition() {
@@ -83,7 +87,7 @@ class App {
 
     _loadMap(position) {
         const {latitude, longitude} = position.coords;
-        this.#map = L.map('map').setView([latitude, longitude], 15);
+        this.#map = L.map('map').setView([latitude, longitude], this.#defaultZoom);
         L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -175,13 +179,6 @@ class App {
         inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
     }
 
-    _addWorkout(workout) {
-        this.#workouts.push(workout);
-        this._renderMarker(workout);
-        this._renderWorkout(workout);
-        this.__hideForm();
-    }
-
     _newWorkout(event) {
         event.preventDefault();
         const validInputs = (...inputs) => inputs.every(inp => (Number.isFinite(inp) && inp > 0));
@@ -190,8 +187,8 @@ class App {
             this._renderMarker(workout);
             this._renderWorkout(workout);
             this.__hideForm();
+            this._updateLocalStorage();
         }
-
 
         const [type, distance, duration] = [inputType.value, +inputDistance.value, +inputDuration.value];
         const {lat, lng} = this.#mapEvent.latlng; 
@@ -210,7 +207,7 @@ class App {
                 const cadence = +inputCadence.value;
                 if (!validInputs(distance, duration, cadence)) {
                     console.log(distance, duration, cadence);
-                    return alert('suck!');
+                    return alert('Inputs have to be positive numbers!');
                 }
                 workout = new Running([lat, lng], distance, duration, cadence);
                 addWorkout(workout);
@@ -218,6 +215,37 @@ class App {
             default:
                 break;
         }
+    }
+
+    _updateLocalStorage() {
+        localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+    }
+
+    _getLocalStorage() {
+        const data = JSON.parse(localStorage.getItem('workouts'));
+        if (!data || !this.#map) return;
+        this.#workouts = data;
+        this.#workouts.forEach(workout => {
+            this._renderWorkout(workout);
+            this._renderMarker(workout);
+        });
+    }
+
+    _moveToPopup(event) {
+        event.preventDefault();
+        const workoutEl = event.target.closest('.workout');
+        if (!workoutEl) return;
+        const workout = this.#workouts.find(workout => workout.id === workoutEl.dataset.id);
+        this.#map.setView(workout.coords, this.#defaultZoom, {
+            animate: true,
+            pan: {
+              duration: 1,
+            }});
+    }
+
+    reset() {
+        localStorage.removeItem('workouts');
+        location.reload();
     }
 }
 
