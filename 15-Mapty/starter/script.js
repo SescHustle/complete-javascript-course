@@ -11,8 +11,41 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
-const map = L.map('map');
+class Workout {
+    constructor(coords, distance, duration) {
+        this.coords = coords;
+        this.distance = distance;
+        this.duration = duration;
+    }
+}
 
+class Running extends Workout {
+    type = 'running';
+    constructor (coords, distance, duration, cadence) {
+        super(coords, distance, duration);
+        this.cadence = cadence;
+        this._calcPace();
+    }
+
+    _calcPace(){
+        this.pace = this.duration / this.distance;
+        return this.pace;
+    }
+}
+
+class Cycling extends Running {
+    type = 'cycling';
+    constructor (coords, distance, duration, elevationGain) {
+        super(coords, distance, duration);
+        this.elevationGain = elevationGain;
+        this._calSpeed();
+    }
+
+    _calSpeed() {
+        this.speed = this.distance / (this.duration / 60);
+        return this.speed;
+    }
+}
 
 class App {
     #map;
@@ -40,11 +73,11 @@ class App {
 
     _loadMap(position) {
         const {latitude, longitude} = position.coords;
-        this.#map = map.setView([latitude, longitude], 15);
+        this.#map = L.map('map').setView([latitude, longitude], 15);
         L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        }).addTo(map);
+        }).addTo(this.#map);
 
         this.#map.on('click', this._showForm.bind(this));
     }
@@ -55,6 +88,25 @@ class App {
         inputDistance.focus();
     }
 
+    __hideForm() {
+        
+    }
+
+    _addMarker(workout) {
+        L.marker(workout.coords)
+            .addTo(this.#map)
+            .bindPopup(
+                L.popup({
+                    maxWidth: 250,
+                    minWidth: 100,
+                    autoClose: false,
+                    closeOnClick: false,
+                    className: `${workout.type}-popup`,
+                })
+            )
+            .setPopupContent(workout.type);
+    }
+
     _toggleElevationField() {
         inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
         inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
@@ -62,19 +114,30 @@ class App {
 
     _newWorkout(event) {
         event.preventDefault();
-        const {lat, lng} = this.#mapEvent.latlng;
-        L.marker([lat, lng])
-            .addTo(map)
-            .bindPopup(
-                L.popup({
-                    maxWidth: 250,
-                    minWidth: 100,
-                    autoClose: false,
-                    closeOnClick: false,
-                    className: `cycling-popup`,
-                })
-            )
-            .setPopupContent('TBD');
+        const validInputs = (...inputs) => inputs.every (inp => Number.isFinite(inp) && (inp > 0));
+        
+        const [type, distance, duration] = [inputType.value, +inputDistance.value, +inputDuration.value];
+        const {lat, lng} = this.#mapEvent.latlng; 
+        let workout;
+
+        switch (type) {
+            case 'cycling':
+                const elevationGain = +inputElevation.value;
+                if (!validInputs(distance, duration, elevationGain)) {
+                    return alert('Inputs have to be positive numbers!');
+                }
+                workout = new Cycling([lat, lng], distance, duration, elevationGain);
+                this._addMarker(workout);
+            case 'running':
+                const cadence = +inputCadence.value;
+                if (!validInputs(distance, duration, cadence)) {
+                    return alert('Inputs have to be positive numbers!');
+                }
+                workout = new Running([lat, lng], distance, duration, cadence);
+                this._addMarker(workout);
+            default:
+                break;
+        }
     }
 }
 
