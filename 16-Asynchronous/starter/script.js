@@ -27,7 +27,7 @@ console.log('------ CODING CHALLENGE #1 ------');
 const whereAmI = function (lat, lng) {
   fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
     .then(response => {
-        if (!response.ok) throw Error(`Can not get location by coordinates. Error: ${res.status}`);
+        if (!response.ok) throw Error(`Can not get location by coordinates. Error: ${response.status}`);
         return response.json()
     })
     .then(data => {
@@ -35,11 +35,11 @@ const whereAmI = function (lat, lng) {
       return fetch(`https://restcountries.com/v2/name/${data.country}`);
     })
     .then(response => {
-        if (!response.ok) throw Error(`Unable to fetch country. Error: ${res.status}`);
+        if (!response.ok) throw Error(`Unable to fetch country. Error: ${response.status}`);
         return response.json()
     })
     .then(country => renderCountry(country[0]))
-    .catch(err => console.log(err.status));
+    .catch(err => console.log(err.message));
 }
 navigator.geolocation
   .getCurrentPosition(
