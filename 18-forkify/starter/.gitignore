@@ -1,0 +1,7 @@
+# Dev directories
+.parcel-cache/
+node_modules/
+dist/
+
+# Unnecessary files
+package-lock.json
