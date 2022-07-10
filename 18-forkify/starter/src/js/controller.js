@@ -17,11 +17,14 @@ const controlRecipes = async function () {
     const recipe = model.state.recipe;
     recipeView.render(recipe);
   } catch (err) {
-    console.error(err);
+    recipeView.renderError();
   }
 };
 
 controlRecipes();
 
-const events = ['hashchange', 'load'];
-events.forEach(ev => window.addEventListener(ev, controlRecipes));
+const init = function () {
+  recipeView.addRenderHandler(controlRecipes);
+};
+
+init();

@@ -1,9 +1,17 @@
-import icons from 'url:../../img/icons.svg';
 import { Fraction } from 'fractional';
+
+import icons from 'url:../../img/icons.svg';
+import { LOAD_EVENTS } from '../config';
 
 class RecipeView {
   #parentElement = document.querySelector('.recipe');
   #data;
+  #errorMessage = 'We could not find that recipe. Please, try another one!';
+  #defaultMessage = '';
+
+  addRenderHandler(handler) {
+    LOAD_EVENTS.forEach(ev => window.addEventListener(ev, handler));
+  }
 
   render(data) {
     this.#data = data;
@@ -12,7 +20,7 @@ class RecipeView {
     this.#parentElement.insertAdjacentHTML('afterbegin', markup);
   }
 
-  renderSpinner = function () {
+  renderSpinner() {
     const markup = `
     <div class="spinner">
       <svg>
@@ -22,7 +30,37 @@ class RecipeView {
   `;
     this.#clear();
     this.#parentElement.insertAdjacentHTML('afterbegin', markup);
-  };
+  }
+
+  renderError(errorMessage = this.#errorMessage) {
+    const markup = `
+      <div class="error">
+        <div>
+          <svg>
+            <use href="${icons}#icon-alert-triangle"></use>
+          </svg>
+        </div>
+        <p>${errorMessage}</p>
+      </div>
+    `;
+    this.#clear();
+    this.#parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  renderMessage(message = this.#defaultMessage) {
+    const markup = `
+      <div class="message">
+        <div>
+          <svg>
+            <use href="${icons}#icon-smile"></use>
+          </svg>
+        </div>
+        <p>${message}</p>
+      </div>
+    `;
+    this.#clear();
+    this.#parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
 
   #clear() {
     this.#parentElement.innerHTML = '';
