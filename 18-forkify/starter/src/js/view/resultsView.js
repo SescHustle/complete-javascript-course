@@ -4,12 +4,17 @@ class ResultsView extends View {
   _parentElement = document.querySelector('.results');
   _errorMessage = 'No recipes found for your search.';
 
-  _generateMarkup(data) {
-    return this._data
-      .map(recipe => {
-        return `
+  _generateMarkup() {
+    return this._data.map(this._generateMarkupPreview).join('');
+  }
+
+  _generateMarkupPreview(recipe) {
+    const id = window.location.hash.slice(1);
+    return `
             <li class="preview">
-                <a class="preview__link" href="#${recipe.id}">
+                <a class="preview__link ${
+                  recipe.id === id ? 'preview__link--active' : ''
+                }" href="#${recipe.id}">
                     <figure class="preview__fig">
                         <img src="${recipe.image}" alt="Test" />
                     </figure>
@@ -22,8 +27,6 @@ class ResultsView extends View {
                 </a>
             </li>
         `;
-      })
-      .join('');
   }
 }
 
