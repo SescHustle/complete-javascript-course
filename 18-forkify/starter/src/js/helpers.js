@@ -1,3 +1,4 @@
+import { async } from 'regenerator-runtime';
 import { TIMEOUT_SEC } from './config';
 
 const timeout = function (s) {
@@ -8,14 +9,19 @@ const timeout = function (s) {
   });
 };
 
-export const getJson = async function (url) {
-  try {
-    const res = await Promise.race([fetch(url), timeout(TIMEOUT_SEC)]);
-    const json = await res.json();
-    if (!res.ok) throw new Error(`${res.message} (${res.status})`);
-    return json;
-  } catch (err) {
-    // Rethrow to handle in model
-    throw err;
-  }
+export const AJAX = async function (url, uploadData = undefined) {
+  const fetchPro = uploadData
+    ? fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(uploadData),
+      })
+    : fetch(url);
+
+  const res = await Promise.race([fetchPro, timeout(TIMEOUT_SEC)]);
+  const json = await res.json();
+  if (!res.ok) throw new Error(`${res.message} (${res.status})`);
+  return json;
 };

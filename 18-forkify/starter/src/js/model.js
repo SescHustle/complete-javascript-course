@@ -1,6 +1,6 @@
 // https://forkify-api.herokuapp.com/v2
-import { API_URL, RES_PER_PAGE } from './config';
-import { getJson } from './helpers';
+import { API_URL, API_KEY, RES_PER_PAGE } from './config';
+import { AJAX } from './helpers';
 
 export const state = {
   recipe: {},
@@ -13,21 +13,26 @@ export const state = {
   bookmarks: [],
 };
 
+const createRecipeObject = function (data) {
+  const { recipe } = data.data;
+  return {
+    id: recipe.id,
+    title: recipe.title,
+    publisher: recipe.publisher,
+    sourceUrl: recipe.source_url,
+    image: recipe.image_url,
+    servings: recipe.servings,
+    cookingTime: recipe.cooking_time,
+    ingredients: recipe.ingredients,
+    bookmarked: state.bookmarks.some(bookmark => bookmark.id === recipe.id),
+    ...(recipe.key && { key: recipe.key }),
+  };
+};
+
 export const loadRecipe = async function (id) {
   try {
-    data = await getJson(`${API_URL}${id}`);
-    const { recipe } = data.data;
-    state.recipe = {
-      id: recipe.id,
-      title: recipe.title,
-      publisher: recipe.publisher,
-      sourceUrl: recipe.source_url,
-      image: recipe.image_url,
-      servings: recipe.servings,
-      cookingTime: recipe.cooking_time,
-      ingredients: recipe.ingredients,
-      bookmarked: state.bookmarks.some(bookmark => bookmark.id === recipe.id),
-    };
+    data = await AJAX(`${API_URL}${id}?key=${API_KEY}`);
+    state.recipe = createRecipeObject(data);
   } catch (err) {
     //Rethrow to handle in controller
     throw err;
@@ -37,13 +42,14 @@ export const loadRecipe = async function (id) {
 export const loadSearchResults = async function (query) {
   try {
     state.search.query = query;
-    data = await getJson(`${API_URL}?search=${query}`);
+    data = await AJAX(`${API_URL}?search=${query}&key=${API_KEY}`);
     state.search.results = data.data.recipes.map(recipe => {
       return {
         id: recipe.id,
         title: recipe.title,
         publisher: recipe.publisher,
         image: recipe.image_url,
+        ...(recipe.key && { key: recipe.key }),
       };
     });
     state.search.page = 1;
@@ -80,6 +86,37 @@ export const removeBookmark = function (id) {
   state.bookmarks.splice(index, 1);
   if (id === state.recipe.id) state.recipe.bookmarked = false;
   persistBookmarks();
+};
+
+export const uploadRecipe = async function (recipe) {
+  try {
+    const recipeObj = Object.fromEntries(recipe);
+    const ingredients = recipe
+      .filter(entry => entry[0].startsWith('ingredient') && entry[1] !== '')
+      .map(ing => {
+        const ingArr = ing[1].split(',').map(el => el.trim());
+        if (ingArr.length !== 3) {
+          throw new Error('Invalid Ingredient Format!');
+        }
+        const [quantity, unit, description] = ingArr;
+        return { quantity: quantity ? +quantity : null, unit, description };
+      });
+    const newRecipe = {
+      title: recipeObj.title,
+      source_url: recipeObj.sourceUrl,
+      image_url: recipeObj.image,
+      publisher: recipeObj.publisher,
+      cooking_time: +recipeObj.cookingTime,
+      servings: +recipeObj.servings,
+      ingredients,
+    };
+    console.log(JSON.stringify(newRecipe));
+    const data = await AJAX(`${API_URL}?key=${API_KEY}`, newRecipe);
+    state.recipe = createRecipeObject(data);
+    addBookmark(state.recipe);
+  } catch (err) {
+    throw err;
+  }
 };
 
 const persistBookmarks = function () {
